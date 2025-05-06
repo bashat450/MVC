@@ -1,4 +1,4 @@
-﻿using FirstMVCApps.Models;
+﻿using MVCApps.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,26 +7,59 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 
-namespace FirstMVCApps
+namespace MVCApps
 {
     public class Logic
     {
-        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["dbEmp"].ToString());
+        SqlConnection con = new SqlConnection(ConfigurationManager.ConnectionStrings["dbStd"].ToString());
 
-        #region === insert Employee Logic ===
-        public void InsertEmp(InsertEmployeeModel insertEmployee)
+        #region === Display All Details ===
+        public List<ListsModel> GetAllStudentsDetails()
+        {
+            List<ListsModel> LMD = new List<ListsModel>();
+            try
+            {
+                SqlCommand cmd = new SqlCommand("[dbo].[GetAllStudentsDetails_SP]", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                SqlDataAdapter SDA = new SqlDataAdapter(cmd);
+                DataTable DT = new DataTable();
+                SDA.Fill(DT);
+
+                foreach (DataRow row in DT.Rows)
+                {
+                    ListsModel std = new ListsModel
+                    {
+                        RollNo = Convert.ToInt32(row["RollNo"]),
+                        Name = row["Name"].ToString(),
+                        City = row["City"].ToString(),
+                        State = row["State"].ToString(),
+                        Fees = Convert.ToInt32(row["Fees"]),
+                        JoiningDate = Convert.ToDateTime(row["JoiningDate"]),
+                    };
+                    LMD.Add(std);
+                }
+            }
+            catch (Exception ex) {
+                // Log or handle error
+                Console.WriteLine(ex.Message);
+            }
+            return LMD;
+        }
+        #endregion
+
+        #region === insert Student Logic ===
+        public void insertDetails(InsertModel insertStdValues)
         {
             try
             {
-                SqlCommand cmd = new SqlCommand("[dbo].[spInsertEmployeesDetails]", con);
+                SqlCommand cmd = new SqlCommand("[dbo].[InsertValuesInStudents_SP]", con);
                 cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@FullName", insertEmployee.FullName);
-                cmd.Parameters.AddWithValue("@Salary", insertEmployee.Salary);
-                cmd.Parameters.AddWithValue("@Country", insertEmployee.Country);
-                cmd.Parameters.AddWithValue("@EmailId", insertEmployee.EmailId);
-                cmd.Parameters.AddWithValue("@CurrentDate", insertEmployee.CurrentDate);
-                cmd.Parameters.AddWithValue("@DepId", insertEmployee.DepId);
-                cmd.Parameters.AddWithValue("@JobTitle", insertEmployee.JobTitle);
+
+                cmd.Parameters.AddWithValue("Name", insertStdValues.Name);
+                cmd.Parameters.AddWithValue("City", insertStdValues.City);
+                cmd.Parameters.AddWithValue("State", insertStdValues.State);
+                cmd.Parameters.AddWithValue("Fees", insertStdValues.Fees);
+                cmd.Parameters.AddWithValue("JoiningDate", insertStdValues.JoiningDate);
 
                 con.Open();
                 cmd.ExecuteNonQuery();
@@ -39,44 +72,56 @@ namespace FirstMVCApps
         }
         #endregion
 
-        public List<ListOfEmployeeModel> GetAllEmployee()
-        {
-            List<ListOfEmployeeModel> LMP = new List<ListOfEmployeeModel>();
+        #region === Edit Student Details ===
+              public void EditDetails(EditModel EditStdValues)
+              {
+                  try
+                  {
+                      con.Open();
+                      SqlCommand cmd = new SqlCommand("[dbo].[UpadateStudentValues_SP]", con);
+                      cmd.CommandType = CommandType.StoredProcedure;
 
+                      cmd.Parameters.AddWithValue("@RollNo", EditStdValues.RollNo);
+                      cmd.Parameters.AddWithValue("@Name", EditStdValues.Name);
+                      cmd.Parameters.AddWithValue("@City", EditStdValues.City);
+                      cmd.Parameters.AddWithValue("@State", EditStdValues.State);
+                      cmd.Parameters.AddWithValue("@Fees", EditStdValues.Fees);
+                      cmd.Parameters.AddWithValue("@JoiningDate", EditStdValues.JoiningDate);
+
+                      cmd.ExecuteNonQuery();
+                      con.Close();
+                  }
+                  catch (Exception ex)
+                  {
+                     Console.WriteLine(ex.Message);
+                  }
+                 
+              }
+        #endregion
+
+        #region === Delete Student Details ===
+        public void DeleteDetails(DeleteModel DeleteStdValues)
+        {
             try
             {
-                SqlCommand cmd = new SqlCommand("[dbo].[ListOfEmployees_SP]", con);
+                con.Open();
+                SqlCommand cmd = new SqlCommand("[dbo].[DeleteStudentValues_SP]", con);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
+                cmd.Parameters.AddWithValue("@RollNo", DeleteStdValues.RollNo);
+                
 
-                foreach (DataRow row in dt.Rows)
-                {
-                    ListOfEmployeeModel emp = new ListOfEmployeeModel
-                    {
-                        RegId = Convert.ToInt32(row["RegId"]),
-                        FullName = row["FullName"].ToString(),
-                        Salary = Convert.ToInt32(row["Salary"]),
-                        Country = row["Country"].ToString(),
-                        EmailId = row["EmailId"].ToString(),
-                        CurrentDate = Convert.ToDateTime(row["CurrentDate"]),
-                        DepId = Convert.ToInt32(row["DepId"]),
-                        JobTitle = row["JobTitle"].ToString()
-                    };
-
-                    LMP.Add(emp);
-                }
+                cmd.ExecuteNonQuery();
+                con.Close();
             }
             catch (Exception ex)
             {
-                // Log or handle error
-                throw;
+                Console.WriteLine(ex.Message);
             }
 
-            return LMP;
         }
 
+        #endregion
     }
+
 }
