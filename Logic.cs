@@ -1,4 +1,4 @@
-﻿using MVCApps.Models;
+using MVCApps.Models;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -39,7 +39,8 @@ namespace MVCApps
                     LMD.Add(std);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 // Log or handle error
                 Console.WriteLine(ex.Message);
             }
@@ -73,44 +74,42 @@ namespace MVCApps
         #endregion
 
         #region === Edit Student Details ===
-              public void EditDetails(EditModel EditStdValues)
-              {
-                  try
-                  {
-                      con.Open();
-                      SqlCommand cmd = new SqlCommand("[dbo].[UpadateStudentValues_SP]", con);
-                      cmd.CommandType = CommandType.StoredProcedure;
-
-                      cmd.Parameters.AddWithValue("@RollNo", EditStdValues.RollNo);
-                      cmd.Parameters.AddWithValue("@Name", EditStdValues.Name);
-                      cmd.Parameters.AddWithValue("@City", EditStdValues.City);
-                      cmd.Parameters.AddWithValue("@State", EditStdValues.State);
-                      cmd.Parameters.AddWithValue("@Fees", EditStdValues.Fees);
-                      cmd.Parameters.AddWithValue("@JoiningDate", EditStdValues.JoiningDate);
-
-                      cmd.ExecuteNonQuery();
-                      con.Close();
-                  }
-                  catch (Exception ex)
-                  {
-                     Console.WriteLine(ex.Message);
-                  }
-                 
-              }
-        #endregion
-
-        #region === Delete Student Details ===
-        public void DeleteDetails(DeleteModel DeleteStdValues)
+        public void EditDetails(EditModel EditStdValues)
         {
             try
             {
                 con.Open();
-                SqlCommand cmd = new SqlCommand("[dbo].[DeleteStudentValues_SP]", con);
+                SqlCommand cmd = new SqlCommand("[dbo].[UpadateStudentValues_SP]", con);
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.AddWithValue("@RollNo", DeleteStdValues.RollNo);
-                
+                cmd.Parameters.AddWithValue("@RollNo", EditStdValues.RollNo);
+                cmd.Parameters.AddWithValue("@Name", EditStdValues.Name);
+                cmd.Parameters.AddWithValue("@City", EditStdValues.City);
+                cmd.Parameters.AddWithValue("@State", EditStdValues.State);
+                cmd.Parameters.AddWithValue("@Fees", EditStdValues.Fees);
+                cmd.Parameters.AddWithValue("@JoiningDate", EditStdValues.JoiningDate);
 
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+        }
+        #endregion
+
+        #region === Delete Student Details ===
+        public void DeleteDetails(int id)
+        {
+            try
+            {
+                SqlCommand cmd = new SqlCommand("[dbo].[DeleteStudentValues_SP]", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@RollNo", id);
+
+                con.Open();
                 cmd.ExecuteNonQuery();
                 con.Close();
             }
