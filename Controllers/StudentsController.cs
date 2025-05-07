@@ -1,23 +1,25 @@
-﻿using MVCApps.Models;
+using MVCApps.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 
 namespace MVCApps.Controllers
 {
     public class StudentsController : Controller
     {
         Logic _logic = new Logic();
-        // GET:                            Lists Of Students
+        //                           Lists Of Students
         [HttpGet]
         public ActionResult Lists()
         {
             return View(_logic.GetAllStudentsDetails());
         }
 
-        // GET:                     GetDetails     Students/Details/5
+        //                      GetDetails     Students/Details/5
         [HttpGet]
         public ActionResult Details(int id)
         {
@@ -25,14 +27,12 @@ namespace MVCApps.Controllers
             return View(details);
         }
 
-        // GET: Students/Create
+        //                            Students/ Insert New Values
         [HttpGet]
         public ActionResult Insert()
         {
             return View();
         }
-
-        // POST: Students/Create
         [HttpPost]
         public ActionResult Insert(InsertModel insertStdValues)
         {
@@ -40,7 +40,6 @@ namespace MVCApps.Controllers
             {
                 // TODO: Add insert logic here
                 _logic.insertDetails(insertStdValues);
-
                 return RedirectToAction("Lists");
             }
             catch
@@ -48,14 +47,12 @@ namespace MVCApps.Controllers
                 return View();
             }
         }
-        // GET: Students/Edit/5
+        //                       Students/Edit/5                Update Students values
         public ActionResult Edit(int id)
         {
             var students = _logic.GetAllStudentsDetails().Find(s => s.RollNo == id);
             return View(students);
         }
-
-        // POST: Students/Edit/5
         [HttpPost]
         public ActionResult Edit(int id, EditModel EditStdValues)
         {
@@ -74,38 +71,18 @@ namespace MVCApps.Controllers
             return View(EditStdValues);
         }
 
-        // GET: Students/Delete/5
+        //               Students/Delete/5                    Delete Students Values
+        [HttpGet]
         public ActionResult Delete(int id)
         {
-            /*
-            var delStd = _logic.GetAllStudentsDetails().Find(s => s.RollNo == id); // Reuse method from Edit logic
-            return View(delStd);*/
-            var student = _logic.GetAllStudentsDetails().Find(de => de.RollNo == id); ; // Reuse method from Edit logic
-            if (student == null)
-            {
-                return HttpNotFound();
-            }
-
-            DeleteModel model = new DeleteModel { RollNo = student.RollNo };
-            return View(model);
+            var del = _logic.GetAllStudentsDetails().Find(de => de.RollNo == id);
+            return View(del);
         }
-        
-        // POST: Students/Delete/5
         [HttpPost]
-        public ActionResult Delete(int id, DeleteModel DeleteStdValues)
+        public ActionResult Delete(int id, FormCollection collection)
         {
-            try
-            {
-                // TODO: Add delete logic here
-                _logic.DeleteDetails(DeleteStdValues);
-                return RedirectToAction("Lists");
-            }
-            catch
-            {
-                return View(DeleteStdValues);
-            }
+            _logic.DeleteDetails(id);
+            return RedirectToAction("Lists");
         }
-        
-
     }
 }
